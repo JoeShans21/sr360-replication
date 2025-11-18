@@ -83,3 +83,75 @@ Before running any scripts, you must download the external datasets. Place them 
     * **Link:** `https://users.ugent.be/~jvdrhoof/dataset-4g/`
     * Download `logs_all.zip`.
     * Extract and place the log files in `data/network_traces/`
+### Phase 2: Prepare Video Assets
+
+Run the video processing script. This script will:
+1.  Segment source videos into 1-second chunks.
+2.  Divide each frame into a $6 \times 4$ grid of tiles.
+3.  Encode each tile at the five specified quality levels (130p to 540p) using FFMPEG/libx265.
+
+```bash
+python src/prepare_assets.py
+Note: This step is extremely time and resource-intensive. It will generate a large number of small video files.
+
+Phase 3: Train SR Models
+Next, train the content-aware SR models. This script will adapt the NAS_public code to train a unique, overfitted model for each video in the dataset.
+
+Bash
+
+python src/train_sr.py
+The trained models will be saved in the models/sr/ directory.
+
+Phase 4: Train DRL Agent
+With the simulator and SR models in place, train the DRL agent. This script will use the training traces (video and network) to teach the A3C agent how to make optimal decisions based on the paper's QoE reward formula.
+
+Bash
+
+python src/train_drl_agent.py
+The trained DRL agent policy network will be saved in models/drl/.
+
+Phase 5: Execute and Analyze
+Finally, run the evaluation. This script will:
+
+Load the testing traces.
+
+Run the simulation for both the trained SR360 agent and the Baseline algorithm.
+
+Collect all QoE metrics (average viewport quality, rebuffering, quality change) for every session.
+
+Generate graphs and figures (e.g., CDFs) that can be directly compared to Figures 2, 3, 4, and 5 in the paper.
+
+Bash
+
+python src/evaluate.py
+The final results and plots will be saved in the results/ directory.
+
+📁 Project Structure
+sr360-replication/
+├── data/                 # Raw and prepared datasets
+│   ├── network_traces/     # 4G/LTE logs
+│   ├── video_traces/       # Head movement data and source videos
+│   └── prepared_videos/    # Output of prepare_assets.py
+├── lib/                  # External code (git submodules)
+│   └── NAS_public/       # Cloned NAS repository
+├── models/               # Saved SR and DRL models
+│   ├── sr/               # Trained content-aware SR models
+│   └── drl/              # Trained DRL agent policy
+├── results/              # Output graphs and logs from evaluation
+├── src/                  # All project source code
+│   ├── prepare_assets.py # Phase 2: Video processing pipeline
+│   ├── train_sr.py       # Phase 3: SR (NAS) model training
+│   ├── train_drl_agent.py# Phase 4: DRL (A3C) agent training
+│   ├── evaluate.py       # Phase 5: Run final evaluation and plot results
+│   ├── simulator.py      # Core trace-driven simulation environment
+│   └── agents.py         # Definitions for SR360Agent and BaselineAgent
+└── README.md             # You are here
+📜 License
+This replication project is available under the MIT License. Please note that the included external libraries (NAS) and datasets retain their original licenses.
+
+🙏 Acknowledgments
+To the authors of SR360 (Jiawen Chen et al.) for their novel work.
+
+To the authors of the NAS project (Yeo et al.), which forms the basis of the SR module.
+
+To the creators of the 360-Degree Video Head Movement (Corbillon et al.) and 4G/LTE Measurements (van der Hooft et al.) datasets.
