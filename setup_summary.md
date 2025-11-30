@@ -1,34 +1,30 @@
 # Setup Summary
 
 ## Status
-The environment is set up, and the asset preparation pipeline has been verified with a synthetic test video.
+The project environment is fully set up. We have a working asset pipeline and skeletons for all major software components (SR, Simulator, DRL Agent).
 
 ## Completed Steps
-1.  **Dependencies**: 
-    - Created `requirements.txt` with necessary Python libraries.
-    - Installed dependencies in a virtual environment (`venv`).
-    - Cloned `lib/NAS_public` for Super-Resolution support.
-2.  **Scripts Fixed**:
-    - `video_downloads.py`: Added config support and exception handling.
-    - `prepare_assets.py`: Enabled ffmpeg execution and fixed logic errors.
-3.  **Verification**:
-    - Generated a 4K synthetic test video (`data/video_traces/source_videos/test_video.mp4`).
-    - Ran `prepare_assets.py` successfully.
-    - Validated output structure in `data/prepared_videos/test_video/`.
+1.  **Environment & Assets**: 
+    - Configured `venv` with PyTorch, TensorFlow, etc.
+    - Fixed asset scripts (`prepare_assets.py`).
+    - Generated valid 4K tiled video assets.
+    - Configured git to exclude large files.
+2.  **Component Skeletons**:
+    - **SR Module (`src/sr_inference.py`)**: Validated integration with `NAS_public`. Can upscale tensors.
+    - **Simulator (`src/simulator.py`)**: Created basic environment class with state/reward stubs.
+    - **DRL Agent (`src/agents.py`)**: Implemented Actor-Critic network with 3 policy heads (Viewport, Bitrate, SR) and 1 value head.
 
-## Next Steps (SR360 Implementation)
-1.  **Super-Resolution (SR)**: 
-    - Implement the "Content-Aware SR" module using the `NAS_public` library.
-    - Train/Overfit an SR model on the test video (or a real video).
-2.  **Simulator**:
-    - Build the trace-driven simulator to model network bandwidth and user viewports.
-    - Implement the QoE metric calculations (Equation 1 in the paper).
-3.  **DRL Agent**:
-    - Implement the A3C agent for joint bitrate and SR decisions.
+## Next Steps (Implementation Phase)
+1.  **Simulator Realism**: 
+    - Update `src/simulator.py` to load real LTE traces from `data/network_traces/`.
+    - Implement logic to read actual file sizes from `data/prepared_videos/` to calculate precise download times.
+2.  **SR Training**:
+    - Implement `train_sr.py` to train the NAS models on the prepared video tiles (content-aware overfitting).
+3.  **DRL Training Loop**:
+    - Create `src/train_drl_agent.py` to run the A3C training loop, updating the agent based on simulator feedback.
 
 ## Usage
-To run the asset preparation on a new video:
-1.  Place the video in `data/video_traces/source_videos/`.
-2.  Update `SOURCE_VIDEO` and `OUTPUT_DIR` in `prepare_assets.py`.
-3.  Run `venv/bin/python prepare_assets.py`.
-
+- **Asset Prep**: `venv/bin/python prepare_assets.py`
+- **Test SR**: `venv/bin/python src/sr_inference.py`
+- **Test Simulator**: `venv/bin/python src/simulator.py`
+- **Test Agent Arch**: `venv/bin/python src/agents.py`

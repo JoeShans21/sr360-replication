@@ -25,6 +25,8 @@ The primary objective is to build a trace-driven simulator and a DRL-based strea
 
 ## 🏁 Getting Started
 
+**Collaborators:** Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, including how to regenerate local data assets not included in the git repo.
+
 Follow these steps to set up the environment and run the replication.
 
 ### Prerequisites

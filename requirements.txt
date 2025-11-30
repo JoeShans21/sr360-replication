@@ -3,4 +3,7 @@ pandas
 matplotlib
 pytube
 numpy
-
+torch
+torchvision
+pillow
+scikit-image
