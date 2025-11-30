@@ -53,7 +53,7 @@ def download_video(
     except exceptions.VideoUnavailable:
         print("Youtube link is unavailable. Plese check the url.")
     except Exception as e:
-        print("Something went wrong: " + e)
+        print("Something went wrong: " + str(e))
 
 
 if __name__ == "__main__":

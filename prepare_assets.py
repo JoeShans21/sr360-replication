@@ -1,20 +1,17 @@
 import os
 import subprocess
 
-# --- Configuration ---
-SOURCE_VIDEO = "data/video_traces/source_videos/rollerCoaster.mp4"
-OUTPUT_DIR = "data/prepared_videos/rollerCoaster"
+# Configuration
+SOURCE_VIDEO = "data/video_traces/source_videos/test_video.mp4"
+OUTPUT_DIR = "data/prepared_videos/test_video"
 CHUNK_DURATION = 1  # 1 second
 TILES_GRID = (6, 4) # 6x4
 BITRATES = ["1M", "2M", "4M", "6M", "8M"] # 1, 2, 4, 6, 8 Mbps
-# Assuming 3840x2160 source (8K is 7680x4320, 4K is 3840x2160, paper says 8K min, but dataset is 4K)
-# Let's assume 3840x2160 based on the 540p tile res (2160/4 = 540)
+# 3840x2160 source (paper says 8K min, but dataset is 4K)
 TILE_WIDTH = 3840 // TILES_GRID[0]  # 3840 / 6 = 640
 TILE_HEIGHT = 2160 // TILES_GRID[1] # 2160 / 4 = 540
 
-# --- Step 1: Segment video into 1-second chunks ---
-# This command splits the video into chunks without re-encoding (very fast)
-#
+# Step 1: Segment video into 1-second chunks without re-encoding
 chunk_dir = os.path.join(OUTPUT_DIR, "chunks")
 os.makedirs(chunk_dir, exist_ok=True)
 segment_command = [
@@ -28,10 +25,10 @@ segment_command = [
     os.path.join(chunk_dir, "chunk_%03d.mp4")
 ]
 # print(f"Running: {' '.join(segment_command)}")
-# subprocess.run(segment_command, check=True)
+subprocess.run(segment_command, check=True)
 print(f"Video segmented into chunks in {chunk_dir}")
 
-# --- Step 2: Loop through chunks, create all tiles and bitrates ---
+# Step 2: Loop through chunks, create all tiles and bitrates
 chunk_files = sorted([f for f in os.listdir(chunk_dir) if f.endswith(".mp4")])
 
 for chunk_file in chunk_files:
@@ -66,7 +63,7 @@ for chunk_file in chunk_files:
                 ]
                 
                 # print(f"Running: {' '.join(encode_command)}")
-                # subprocess.run(encode_command, check=True, capture_output=True)
+                subprocess.run(encode_command, check=True, capture_output=True)
 
 print(f"Successfully processed {chunk_file} -> tile_{row}_{col} @ {bitrate}")
 

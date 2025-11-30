@@ -1,0 +1,23 @@
+# Environments
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Data and Assets
+data/
+*.mp4
+*.m4s
+*.webm
+*.zip
+*.log
+
+# Models and Results
+models/
+results/
+
+# IDE and OS
+.DS_Store
+.vscode/
+.idea/
+
