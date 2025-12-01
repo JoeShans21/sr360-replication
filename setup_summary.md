@@ -11,13 +11,16 @@ The project environment is fully set up. We have a working asset pipeline and sk
     - Configured git to exclude large files.
 2.  **Component Skeletons**:
     - **SR Module (`src/sr_inference.py`)**: Validated integration with `NAS_public`. Can upscale tensors.
-    - **Simulator (`src/simulator.py`)**: Created basic environment class with state/reward stubs.
+    - **Simulator (`src/simulator.py`)**: 
+        - Parses real 4G/LTE traces (`data/network_traces/`).
+        - Loads real tile sizes from `data/prepared_videos/`.
+        - Simulates download time and rebuffering.
     - **DRL Agent (`src/agents.py`)**: Implemented Actor-Critic network with 3 policy heads (Viewport, Bitrate, SR) and 1 value head.
 
 ## Next Steps (Implementation Phase)
-1.  **Simulator Realism**: 
-    - Update `src/simulator.py` to load real LTE traces from `data/network_traces/`.
-    - Implement logic to read actual file sizes from `data/prepared_videos/` to calculate precise download times.
+1.  **Viewport Simulation**:
+    - Integrate Head Movement Traces into `src/simulator.py` to determine which tiles are actually visible (FoV).
+    - Implement logic to map FoV (yaw/pitch) to tile indices (row/col).
 2.  **SR Training**:
     - Implement `train_sr.py` to train the NAS models on the prepared video tiles (content-aware overfitting).
 3.  **DRL Training Loop**:
@@ -26,5 +29,5 @@ The project environment is fully set up. We have a working asset pipeline and sk
 ## Usage
 - **Asset Prep**: `venv/bin/python prepare_assets.py`
 - **Test SR**: `venv/bin/python src/sr_inference.py`
-- **Test Simulator**: `venv/bin/python src/simulator.py`
+- **Test Simulator**: `venv/bin/python src/simulator.py` (Runs with real traces and data!)
 - **Test Agent Arch**: `venv/bin/python src/agents.py`
