@@ -75,7 +75,7 @@ The project is executed in a sequence of steps, from data preparation to final e
 Before running any scripts, you must obtain the datasets. Place them in the `data/` directory.
 
 1.  **360-Degree Video Head Movement Dataset (Corbillon et al.):**
-    * **Link:** `http://dash.ipv6.enstb.fr/headMovements/`
+    * **Link:** `https://tinyurl.com/3brdmm4s`
     * Download the source videos (e.g., `diving`, `rollerCoaster`) and the head movement traces.
     * Place them in `data/video_traces/`
 
