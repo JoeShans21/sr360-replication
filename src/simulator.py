@@ -66,13 +66,7 @@ class VideoLibrary:
                 
             self.videos[video_name] = {}
             
-            # Find chunks
-            # Structure update: The prepare_assets.py script outputs:
-            # .../chunk_000/tile_0_0/1M.mp4
-            # It seems it puts them directly under video_name/chunk_...
-            # Let's verify with glob
-            
-            # Pattern: video/chunk_*/tile_*/*.mp4
+            # Find chunk dirs for this video
             chunk_dirs = glob.glob(os.path.join(video_path, "chunk_*"))
             
             for chunk_path in chunk_dirs:
@@ -129,10 +123,7 @@ class VideoSession:
         
         download_time = downloaded_bits / (throughput_mbps * 1e6) # bits / bps = seconds
         
-        # Buffer update: add chunk duration, subtract download time
-        # But logically: We consume buffer while downloading.
-        # If buffer < download_time, we rebuffer.
-        
+        # Buffer update
         drain = download_time
         
         if self.buffer_level >= drain:
@@ -161,13 +152,7 @@ class Environment:
         return np.zeros(7)
         
     def step(self, action):
-        # Action: (viewport_tile_idx, bitrates_dict, sr_map)
-        # simplified for testing: action is just a dict of {tile_idx: bitrate}
-        
-        # 1. Determine tiles to download
-        # For now, assume we download ALL tiles (simplification) or specific ones
-        # Let's assume action specifies bitrate for all 24 tiles
-        
+        # Action is ignored here sojust download all tiles at a fixed bitrate
         total_bits = 0
         chunk_idx = self.video_session.playback_ptr
         
@@ -176,7 +161,7 @@ class Environment:
         
         for r in range(rows):
             for c in range(cols):
-                # Default to '1M' if not specified
+                # Default to 1M if not specified
                 bitrate = '1M' 
                 size = self.video_lib.get_tile_size(self.video_name, chunk_idx, r, c, bitrate)
                 total_bits += size
@@ -188,7 +173,7 @@ class Environment:
         rebuf, dl_time = self.video_session.step(total_bits, tp)
         
         # 4. Reward
-        reward = -rebuf # Simple rebuffer penalty
+        reward = -rebuf
         
         next_state = self.get_state()
         done = False # TODO check max chunks

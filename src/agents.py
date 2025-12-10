@@ -7,7 +7,7 @@ class ActorCritic(nn.Module):
     def __init__(self, state_dim, action_dim_viewport, action_dim_bitrate):
         super(ActorCritic, self).__init__()
         
-        # Simple MLP feature extractor (easier to start with than 1D CNNs over time)
+        # Simple MLP feature extractor
         self.feature_layer = nn.Sequential(
             nn.Linear(state_dim, 128),
             nn.ReLU(),

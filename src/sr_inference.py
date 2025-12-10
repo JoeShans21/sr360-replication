@@ -9,15 +9,15 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 NAS_LIB_PATH = os.path.join(PROJECT_ROOT, 'lib', 'NAS_public')
 sys.path.append(NAS_LIB_PATH)
 
-# Fake a simple sys.argv so option.py's argparse doesn't crash on import
-# Save the real argv, swap in a dummy one, then put it back after import.
+# Fake sys.argv to avoid option.py's argparse crash on import
+# Save real argv, swap in dummy one, then put back after import.
 original_argv = sys.argv
 sys.argv = ['dummy_script', '--data_name', 'test_video', '--quality', 'low']
 
 try:
     from model import MultiNetwork
     from template import get_nas_config
-    # We might need 'opt' if the model relies on it globally, though MultiNetwork seems to take config in __init__
+    # 'opt' may be used as a global config in the NAS code
     from option import opt as nas_opt 
 except ImportError as e:
     print(f"Error importing NAS modules: {e}")
@@ -38,17 +38,17 @@ class SRInferencer:
         self.device = torch.device(device)
         self.quality = quality
         
-        # Load model configuration
+        # Load NAS model config
         config = get_nas_config(quality)
         
-        # Initialize model
+        # Initialize NAS model
         self.model = MultiNetwork(config).to(self.device)
         
-        # Use 4x upscaling by default (NAS supports integer scales 1–4).
+        # Use 4x upscaling by default (NAS supports integer scales 1-4).
         # For our tiles, 4x roughly maps the low-res tiles back to the target resolution.
         self.model.setTargetScale(4) 
         
-        # Validation mode (eval)
+        # Set model to evaluation mode
         self.model.eval()
         
     def load_weights(self, weight_path):
@@ -57,9 +57,7 @@ class SRInferencer:
         """
         if os.path.exists(weight_path):
             print(f"Loading weights from {weight_path}")
-            # Note: The NAS save_chunk method saves partial dicts. 
-            # Loading might need specific logic if we use those chunks.
-            # For a full checkpoint, we'd use standard torch load.
+            # save_chunk writes partial state_dicts; loading those may need extra handling.
             checkpoint = torch.load(weight_path, map_location=self.device)
             self.model.load_state_dict(checkpoint)
         else:
@@ -76,10 +74,10 @@ class SRInferencer:
             torch.Tensor: Upscaled tensor (C, H*scale, W*scale)
         """
         with torch.no_grad():
-            # Add batch dimension: (1, C, H, W)
+            # Aqdd batch dimension: (1, C, H, W)
             input_batch = tensor_chw.unsqueeze(0).to(self.device)
             
-            # Forward pass (uses the default NAS inference path internally).
+            # Forward pass (uses default NAS inference path internally).
             output_batch = self.model(input_batch)
             return output_batch.squeeze(0)
 
@@ -88,7 +86,6 @@ if __name__ == "__main__":
     print("Initializing SRInferencer...")
     inferencer = SRInferencer(quality='low', device='cpu')
     
-    # Create dummy input: 3 channels, 130x130 (representing a small tile)
     dummy_input = torch.rand(3, 130, 130)
     print(f"Input shape: {dummy_input.shape}")
     

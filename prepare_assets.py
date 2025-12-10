@@ -1,13 +1,13 @@
 import os
 import subprocess
 
-# Configuration
+# Config
 SOURCE_VIDEO = "data/video_traces/source_videos/grand.mp4"
 OUTPUT_DIR = "data/prepared_videos/grand"
-CHUNK_DURATION = 1  # 1 second
+CHUNK_DURATION = 1  # 1 sec
 TILES_GRID = (6, 4)  # 6x4
 BITRATES = ["1M", "2M", "4M", "6M", "8M"]  # 1, 2, 4, 6, 8 Mbps
-# Our test video is 3840x2160 (4K), so tiles are just that split into a 6x4 grid.
+# 4K video split into a 6x4 tile grid
 TILE_WIDTH = 3840 // TILES_GRID[0]  # 3840 / 6 = 640
 TILE_HEIGHT = 2160 // TILES_GRID[1]  # 2160 / 4 = 540
 
@@ -41,37 +41,37 @@ for chunk_file in chunk_files:
     chunk_name = os.path.splitext(chunk_file)[0]
     chunk_path = os.path.join(chunk_dir, chunk_file)
 
-    for row in range(TILES_GRID[1]):  # 0 to 3
-        for col in range(TILES_GRID[0]):  # 0 to 5
+    for row in range(TILES_GRID[1]):
+        for col in range(TILES_GRID[0]):
 
             x_pos = col * TILE_WIDTH
             y_pos = row * TILE_HEIGHT
 
-            # This crop filter will cut out one tile
+            # Cut out one tile
             crop_filter = f"crop={TILE_WIDTH}:{TILE_HEIGHT}:{x_pos}:{y_pos}"
 
             for bitrate in BITRATES:
-                # Create the final output directory
+                # Create final output directory
                 tile_output_dir = os.path.join(
                     OUTPUT_DIR, chunk_name, f"tile_{row}_{col}"
                 )
                 os.makedirs(tile_output_dir, exist_ok=True)
                 output_filepath = os.path.join(tile_output_dir, f"{bitrate}.mp4")
 
-                # This command takes a chunk, crops a tile, and encodes it at the target bitrate
+                # Take a chunk, crop tile, and encode it at target bitrate
                 encode_command = [
                     "ffmpeg",
                     "-i",
                     chunk_path,
                     "-vf",
-                    crop_filter,  # Apply the crop filter
+                    crop_filter,
                     "-c:v",
-                    "libx265",  # Use the libx265 encoder
+                    "libx265",
                     "-b:v",
-                    bitrate,  # Set target average bitrate
+                    bitrate,
                     "-preset",
-                    "medium",  # 'medium' is a good balance
-                    "-an",  # Remove audio
+                    "medium",
+                    "-an",
                     output_filepath,
                 ]
 
