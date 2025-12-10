@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--config_url", help="Path to config file")
 
 
-# list of youtube links. Please change this
+# list of youtube links.
 LIST_VIDEOS = [
     "-xNN-bJQ4vI",
     "-9YJppTxIDM",

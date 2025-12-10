@@ -24,7 +24,6 @@ class ActorCritic(nn.Module):
         
         # 3. SR Decision (Binary: On/Off per tile? Or global?)
         # Paper says: "decision on whether to enhance a video by SR or not"
-        # We'll assume binary for now.
         self.actor_sr = nn.Linear(128, 2) 
         
         # Critic Head
