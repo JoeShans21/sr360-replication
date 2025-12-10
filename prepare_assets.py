@@ -7,7 +7,7 @@ OUTPUT_DIR = "data/prepared_videos/grand"
 CHUNK_DURATION = 1  # 1 second
 TILES_GRID = (6, 4)  # 6x4
 BITRATES = ["1M", "2M", "4M", "6M", "8M"]  # 1, 2, 4, 6, 8 Mbps
-# 3840x2160 source (paper says 8K min, but dataset is 4K)
+# Our test video is 3840x2160 (4K), so tiles are just that split into a 6x4 grid.
 TILE_WIDTH = 3840 // TILES_GRID[0]  # 3840 / 6 = 640
 TILE_HEIGHT = 2160 // TILES_GRID[1]  # 2160 / 4 = 540
 
@@ -51,7 +51,7 @@ for chunk_file in chunk_files:
             crop_filter = f"crop={TILE_WIDTH}:{TILE_HEIGHT}:{x_pos}:{y_pos}"
 
             for bitrate in BITRATES:
-                # Create the final output directory, e.g., .../chunk_001/tile_0_0/
+                # Create the final output directory
                 tile_output_dir = os.path.join(
                     OUTPUT_DIR, chunk_name, f"tile_{row}_{col}"
                 )

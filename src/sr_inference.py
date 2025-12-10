@@ -4,14 +4,13 @@ import torch
 import numpy as np
 from argparse import Namespace
 
-# --- Setup paths to include NAS_public ---
+# Add NAS_public to the Python path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 NAS_LIB_PATH = os.path.join(PROJECT_ROOT, 'lib', 'NAS_public')
 sys.path.append(NAS_LIB_PATH)
 
-# --- Mock sys.argv to satisfy option.py's argparse ---
-# option.py parses args immediately on import. We need to provide minimal valid args.
-# We'll save the original argv, set a dummy one, import, then restore.
+# Fake a simple sys.argv so option.py's argparse doesn't crash on import
+# Save the real argv, swap in a dummy one, then put it back after import.
 original_argv = sys.argv
 sys.argv = ['dummy_script', '--data_name', 'test_video', '--quality', 'low']
 
@@ -45,10 +44,8 @@ class SRInferencer:
         # Initialize model
         self.model = MultiNetwork(config).to(self.device)
         
-        # Set default target scale (e.g., 4x upscale)
-        # NAS supports 1, 2, 3, 4. We typically want max upscale for 360 video tiles?
-        # The paper says: "A video tile with low resolution can be boosted... to high resolution"
-        # If we have 540p tiles as max (high), and 130p as min. 130p * 4 ~ 520p close to 540p.
+        # Use 4x upscaling by default (NAS supports integer scales 1–4).
+        # For our tiles, 4x roughly maps the low-res tiles back to the target resolution.
         self.model.setTargetScale(4) 
         
         # Validation mode (eval)
@@ -82,21 +79,7 @@ class SRInferencer:
             # Add batch dimension: (1, C, H, W)
             input_batch = tensor_chw.unsqueeze(0).to(self.device)
             
-            # Forward pass
-            # idx=None allows random path in training, but for inference 
-            # MultiNetwork.forward calls SingleNetwork.forward.
-            # SingleNetwork.forward defaults idx to random choice from outputList if None!
-            # We probably want deterministic inference.
-            # Looking at SingleNetwork.forward:
-            # "if idx is None: idx = random.choice(self.outputList)"
-            # This implies we MUST provide idx for deterministic output?
-            # Or maybe outputList only has one option in eval mode?
-            # ops.random_gradual_03 suggests it's for any-time prediction.
-            # For now, we'll let it be random or fix it if we know the "full" path index.
-            # Usually the last block is the "best" quality.
-            # SingleNetwork init: self.outputNode = sorted(self.outputNode)
-            # We can likely grab the max index from the model internals if needed.
-            
+            # Forward pass (uses the default NAS inference path internally).
             output_batch = self.model(input_batch)
             return output_batch.squeeze(0)
 

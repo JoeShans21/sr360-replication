@@ -157,8 +157,7 @@ class Environment:
         self.video_session = VideoSession(video_name, self.video_lib)
         
     def get_state(self):
-        # Return state vector: (Rk, Bk, xk, dk, fovk, vpk, ck)
-        # Placeholder values for now
+        # Placeholder state (7-D vector for now)
         return np.zeros(7)
         
     def step(self, action):
@@ -172,10 +171,7 @@ class Environment:
         total_bits = 0
         chunk_idx = self.video_session.playback_ptr
         
-        # Mock iteration over all tiles
-        rows, cols = 6, 4 # based on paper
-        # Note: prepare_assets uses 6 cols, 4 rows? or 6 rows 4 cols?
-        # prepare_assets: TILES_GRID = (6, 4) -> col=6, row=4
+        # Mock iteration over all tiles (4 rows x 6 cols to match TILES_GRID = (6, 4))
         rows, cols = 4, 6 
         
         for r in range(rows):

@@ -7,7 +7,7 @@ class ActorCritic(nn.Module):
     def __init__(self, state_dim, action_dim_viewport, action_dim_bitrate):
         super(ActorCritic, self).__init__()
         
-        # Feature Extractor (simple MLP for now, paper uses 1D-CNNs for time-series)
+        # Simple MLP feature extractor (easier to start with than 1D CNNs over time)
         self.feature_layer = nn.Sequential(
             nn.Linear(state_dim, 128),
             nn.ReLU(),
@@ -15,15 +15,14 @@ class ActorCritic(nn.Module):
             nn.ReLU()
         )
         
-        # Actor Heads
-        # 1. Viewport Prediction (which tile is center?)
+        # Actor heads
+        # 1. Viewport: which tile is center
         self.actor_viewport = nn.Linear(128, action_dim_viewport)
         
-        # 2. Bitrate Selection (for tiles in viewport)
+        # 2. Bitrate: quality level for tiles in viewport
         self.actor_bitrate = nn.Linear(128, action_dim_bitrate)
         
-        # 3. SR Decision (Binary: On/Off per tile? Or global?)
-        # Paper says: "decision on whether to enhance a video by SR or not"
+        # 3. SR decision: turn super-resolution on/off
         self.actor_sr = nn.Linear(128, 2) 
         
         # Critic Head
